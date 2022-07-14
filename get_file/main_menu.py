@@ -1,4 +1,5 @@
 import configparser
+from re import X
 from unittest import result
 
 import config 
@@ -62,21 +63,36 @@ class MainMenu(QMainWindow, MainMenuUI):
     
     def update_table(self) :  
         dict22 = {'22station': self.newstation22start, '22crack': [round(float(percent) ,2 ) for percent in self.newcrack_percent22], '22photo': self.newphoto22}
-        dict21 = {'21crack': [round(float(percent) ,2 ) for percent in self.newcrack_percent21], '21photo': self.newphoto21, '21station': self.newstation21start}  
+        dict21 = {'21station': self.newstation21start, '21crack': [round(float(percent) ,2 ) for percent in self.newcrack_percent21], '21photo': self.newphoto21}  
+
+
+        # 21년도 데이터를 22년도 station에 맞춰서 자르기 #
+        startstation = self.newstation22start[0]
+        endstation= self.newstation22start[-1]
+        #print(startstation, endstation)
+        
+        #newdict21 = self.convert_dict21(dict21, startstation, endstation)
 
         df22 = pd.DataFrame(dict22)
-        df21 = pd.DataFrame(dict21)
-        # saving the dataframe 
-        df = pd.concat([df22,df21],axis=1)
+        df21 = pd.DataFrame(dict21) #(newdict21)
+        df = pd.merge(df22, df21, left_on='22station', right_on='21station', how='left')
         
-        col = len(df.keys()) #col개수 6 
+        # 필요없는 컬럼 drop
+        df.drop(['21photo', '21station'], axis=1, inplace=True)
+        #rename
+        df = df.rename(columns={'22station': 'station', '22photo': 'photo'})
+        #컬럼 순서 변경
+        df = df[['station', '21crack', '22crack', 'photo']]
+
+        
+        col = len(df.keys()) #col개수 4 
         row = len(df.index)  #row개수
         
                 
         # 테이블 채우기
         self.monitor_table.setRowCount(row) #len(df.index)
-        self.monitor_table.setColumnCount(6) #len(df.keys())
-        self.monitor_table.setHorizontalHeaderLabels(["22station", "crack", "photo", "crack", "photo", "21station"]) #df.keys()
+        self.monitor_table.setColumnCount(col) #len(df.keys())
+        self.monitor_table.setHorizontalHeaderLabels(df.keys()) #df.keys()
         
         for r in range(row):
             for c in range(col):
@@ -84,12 +100,14 @@ class MainMenu(QMainWindow, MainMenuUI):
                 if str(df.iloc[r][c]) == "nan" :
                     self.monitor_table.setItem(r, c, QTableWidgetItem(""))
                     continue
-                if c == 0 or c == 5 :
+                if c == 0:
                     self.monitor_table.setItem(r, c, QTableWidgetItem(str(df.iloc[r][c].astype(np.int64))))
-                    self.monitor_table.item(r, c).setBackground(QtGui.QColor(221, 221, 221))
-                    continue
+                    self.monitor_table.item(r, c).setBackground(QtGui.QColor(208, 206, 206))
+                    continue                  
                 item = QTableWidgetItem(str(df.iloc[r][c]))
                 self.monitor_table.setItem(r, c, item)
+                if c == 3 :
+                    self.monitor_table.item(r, c).setBackground(QtGui.QColor(226, 239, 218)) # (226, 239, 218)  연회색(234, 234, 234)
                 
                 
         self.monitor_table.resizeColumnsToContents()    
@@ -242,16 +260,21 @@ class MainMenu(QMainWindow, MainMenuUI):
         for a_station in seoul22 :
             station22start.append(int(a_station['station']['start']))
             crack_percent22.append(float(a_station['old_score']['crack']))
-            photo = (a_station['photo_surface']['front'].split("_")[-1]).split(".")[0]
-            photo22.append(int(photo[1:])/1000000)
+            #photo = (a_station['photo_surface']['front'].split("_")[-1]).split(".")[0]
+            #photo22.append(int(photo[1:])/1000000)
+            photo = (a_station['photo_surface']['front'])
+            photo22.append(photo)
         station21start =[]
         crack_percent21=[]
         photo21=[]
         for a_station in seoul21 :
             station21start.append(int(a_station['station']['start']))
             crack_percent21.append(float(a_station['old_score']['crack']))
-            photo = (a_station['photo_surface']['front'].split("_")[-1]).split(".")[0]
-            photo21.append(int(photo[1:])/1000000)
+            #photo = (a_station['photo_surface']['front'].split("_")[-1]).split(".")[0]
+            #photo21.append(int(photo[1:])/1000000)
+            photo = (a_station['photo_surface']['front'])
+            photo21.append(photo)
+            
 
         # data slicing (monitor id에 따른 주어진 범위에 따라)
         self.newstation22start, self.newcrack_percent22, self.newstation21start, self.newcrack_percent21, self.newphoto21, self.newphoto22 = [], [], [], [], [], []
@@ -302,16 +325,21 @@ class MainMenu(QMainWindow, MainMenuUI):
 
         self.png_save_button.setEnabled(True) #이미지 저장 버튼 활성화
         self.pdf_save_button.setEnabled(True) #PDF저장 버튼 활성화
+        
     def convert_dict21(self, old_dict21, start, end) :
         newdict21 = {}
         print(start, end)
         old_dict21_stations = old_dict21["21station"] #station모아둔 list
 
+        start_idx = [i for i,x in enumerate(old_dict21_stations) if x >= start][0]
+        end_idx = [i for i,x in enumerate(old_dict21_stations) if x <= end][-1]
         
-        start_idx = [i for i,x in enumerate(old_dict21_stations) if x == start] #대소비교로바꿔야할듯
-        end_idx = [i for i,x in enumerate(old_dict21_stations) if x == end] #대소비교로바꿔야할듯 
+        new_dict21 = {}
+        for key, value_list in old_dict21.items() :
+            #print(key, value_list)
+            new_dict21[key] = value_list[start_idx:end_idx+1]
+        return new_dict21
         
-        print(start_idx, end_idx)
         
     def convert_csv(self, ) :
         # dictionary of lists  
@@ -325,24 +353,14 @@ class MainMenu(QMainWindow, MainMenuUI):
         endstation= self.newstation22start[-1]
         #print(startstation, endstation)
         newdict21 = self.convert_dict21(dict21, startstation, endstation)
-        
-        # for idx, value in enumerate(dict21) :
-        #(idx, alue, dict21[value])
-        #(0, 21station, [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240])
-        #(1, 21crack, [0.0, 0.0, 0.0, 22.444, 0.0, 0.0])
-        #(2, 21photo, [1.7, 1.68, 1.66, 1.64, 1.62, 1.6, 1.58, 1.56, 1.54, 1.52, 1.5, 1.48])
-        #for idx, value in enumerate(dict21) :
-        #    print(idx)
-        #    print(value)
-        #    print(dict21[value])
-        
+
         df22 = pd.DataFrame(dict22)
-        df21 = pd.DataFrame(dict21)
+        df21 = pd.DataFrame(newdict21)
         
         # saving the dataframe 
-        #pd.concat([df22,newdict21],axis=1).to_csv(f"{self.monitorid_combobox.currentText()}.csv", index = False)
+        #pd.concat([df22,df21],axis=1).to_csv(f"{self.monitorid_combobox.currentText()}.csv", index = False)
             
-     
+
 
     def png_save(self) :
         monitor_id = self.monitorid_combobox.currentText()
