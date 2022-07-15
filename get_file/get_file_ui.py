@@ -1,6 +1,6 @@
 import configparser
 import os
-import one_graph.config as config
+import config
 
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtWidgets import *
@@ -8,8 +8,8 @@ from PySide6.QtWidgets import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
-class MainMenuUI(object):
-    def setupUi(self, window: QMainWindow):
+class GetFileUI(object):
+    def setupUi(self, window: QDialog): #window: QMainWindow
         #database
         client = config.get_client()
         database = client[config.database_name]
@@ -18,7 +18,7 @@ class MainMenuUI(object):
         
         window.setWindowTitle('서울시 데이터 저장')
         central = QWidget(window)
-        window.setCentralWidget(central)
+        #window.setCentralWidget(central)
 
 
         mainLayout = QGridLayout(central)

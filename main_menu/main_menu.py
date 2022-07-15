@@ -1,15 +1,11 @@
-import configparser
-from re import X
-from unittest import result
-
-import one_graph.config as config 
-import pymongo
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import *
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
+
+import config 
 import numpy as np
+import pandas as pd # csv저장
 
 # 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
@@ -17,18 +13,14 @@ font_path = r"C:\Users\alba3\Desktop\temp_graph\NanumGothic.ttf"
 font = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font)
 
-# csv저장
-import pandas as pd  
+from main_menu.main_menu_ui import MainMenuUI
+from add_monitor.add_monitor import AddStatus # 과업 현황 입력
+from view_monitor.view_monitor import ViewMonitor # 과업 현황 보기
+from add_result.add_result_seoul import AddResultSeoul # 분석보고서 csv업로드
+#from get_assess_report.get_assess_report_seoul import GetAssessReportSeoul # 변환보고서 추출
+from get_file.get_file import GetFile #그래프 추출
 
 
-from PySide6.QtWidgets import QApplication
-from one_graph.main_menu_ui import MainMenuUI
-
-
-def returnfig(x,y):
-    fig = plt.figure()
-    a = plt.plot(x,y)
-    return fig
 class MainMenu(QMainWindow, MainMenuUI):
     def __init__(self):
         QMainWindow.__init__(self, None, Qt.Window)
@@ -37,6 +29,20 @@ class MainMenu(QMainWindow, MainMenuUI):
         #DB연결
         self.client = config.get_client()
         self.database = self.client[config.database_name] 
+
+        ###############################버튼 연결###############################
+        self.job_status_add_button.clicked.connect(self.open_add_status) #과업 현황 입력
+        self.job_status_button.clicked.connect(self.open_job_status) # 과업 현황 보기
+        self.result_seoul_add_button.clicked.connect(self.open_add_result_seoul) # 분석보고서 csv업로드
+        #self.result_seoul20_add_button.clicked.connect(self.open_add_result_seoul20)
+        self.get_file_button.clicked.connect(self.open_get_file)
+        
+        
+        ########################################################################
+
+
+
+
 
         # 콤보박스 변경될 때
         self.lineid_combobox.currentTextChanged.connect(self.updateRoadnameCombo)
@@ -60,6 +66,9 @@ class MainMenu(QMainWindow, MainMenuUI):
 
         self.pdf_save_button.clicked.connect(self.convert_csv)
         self.png_save_button.clicked.connect(self.png_save)
+        
+        
+        self.update_monitor()
     
     def update_table(self) :  
         dict22 = {'22station': self.newstation22start, '22crack': [round(float(percent) ,2 ) for percent in self.newcrack_percent22], '22photo': self.newphoto22}
@@ -392,10 +401,77 @@ class MainMenu(QMainWindow, MainMenuUI):
         
         fig.savefig(f"{self.monitorid_combobox.currentText()}.png", bbox_inches = 'tight')
         
+    ## 현황 메뉴 ## #####################################################
+    # 과업 현황 추가 [과업 현황 입력]
+    def open_add_status(self):
+        dialog = AddStatus("2022년_서울시")
+        dialog.exec()
+        self.update_monitor() #조사 개소, 연장, 결과연장 칸 업데이트
+
+    # 과업 현황 보기 [과업 현황 보기]
+    def open_job_status(self):
+        dialog = ViewMonitor("2022년_서울시")
+        dialog.exec()
+
+    
+    ## 결과파일 메뉴 ## #####################################################
+    # [분석보고서 csv업로드] -> result, result20테이블
+    def open_add_result_seoul(self): 
+        dialog = AddResultSeoul("2022년_서울시")
+        dialog.exec()
+        self.update_monitor() 
+
+    # [변환보고서 추출]
+    def open_assess_report_seoul(self):
+        pass
+    # [그래프 추출]
+    def open_get_file(self):
+        dialog = GetFile()
+        dialog.exec()
+    
+    # 과업 정보 업데이트
+    def update_monitor(self):
         
-  
+        # monitor 테이블
+        monitor = self.database["monitor"]
+        query_result = monitor.aggregate(
+            [
+                {"$match": {"job_id": "2022년_서울시"}},
+                {"$group": {
+                    "_id": "$job_id",
+                    "length": {"$sum": {"$subtract": ["$monitor_end_station", "$monitor_start_station"]}},
+                    "count": {"$sum": 1}
+                }}
+            ]
+        )
+        monitor_result = {"count": 0, "length": 0}
+        for x in query_result:
+            monitor_result = x
+            break
+        self.job_monitor_count.setText(f"  조사 개소: {monitor_result['count']} 개소")
+        self.job_monitor_length.setText(f"  조사 연장: {monitor_result['length'] / 1000}km")
+        
+        # result 테이블
+        result = self.database["result"]
+        query_result = result.aggregate(
+            [
+                {"$match": {"job_name": "2022년_서울시"}},
+                {"$group": {
+                    "_id": "job_name",
+                    "count": {"$sum": 1}
+                }}
+            ]
+        )
+        result = {"count": 0}
+        for x in query_result:
+            result = x
+            break
+        self.job_result_length.setText(f"결과 연장: {result['count'] / 100}km")
+
+'''  
 if __name__ == '__main__':
     app = QApplication()
     window = MainMenu()
     window.show()
     app.exec()
+'''

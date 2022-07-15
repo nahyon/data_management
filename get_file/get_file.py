@@ -1,6 +1,6 @@
 import configparser
 from unittest import result
-import one_graph.config as config
+import config
 
 import sys
 import os
@@ -9,7 +9,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import *
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-from one_graph.main_menu_ui import MainMenuUI
+from get_file.get_file_ui import GetFileUI
 
 # 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
@@ -24,10 +24,9 @@ import pandas as pd
 from itertools import islice
 
 
-
-class MainMenu(QMainWindow, MainMenuUI):
+class GetFile(QDialog, GetFileUI): #GetFile(QMainWindow, GetFileUI):
     def __init__(self):
-        QMainWindow.__init__(self, None, Qt.Window)
+        QDialog.__init__(self, None, Qt.Dialog) #QMainWindow.__init__(self, None, Qt.Window)
         self.setupUi(self)
         
         #DB연결
@@ -305,12 +304,10 @@ class MainMenu(QMainWindow, MainMenuUI):
         #ax.grid(True)  
         
         plt.ylim([0, 100]) #y축 0~100으로고정
-        plt.xticks(list((range(monitor_start_station, monitor_end_station+20, 40))),rotation=90) #눈금
+        plt.xticks(list((range(monitor_start_station, monitor_end_station+20, 100))),rotation=90) #눈금
         
         plt.ylabel("crack_percent")
         plt.xlabel("start_station")
-        
-
         
         plt.title(monitorid)
         plt.legend()
@@ -408,10 +405,3 @@ class MainMenu(QMainWindow, MainMenuUI):
             yield { k: data[k] for k in islice(it, SIZE)}
        
         
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = MainMenu()
-    window.show()
-    app.exec()
