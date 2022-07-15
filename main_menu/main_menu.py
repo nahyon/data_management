@@ -137,17 +137,17 @@ class MainMenu(QMainWindow, MainMenuUI):
         for a_station in seoul22 :
             station22start.append(int(a_station['station']['start']))
             crack_percent22.append(float(a_station['old_score']['crack']))
-            #photo = (a_station['photo_surface']['front'].split("_")[-1]).split(".")[0]
+            #photo = (a_station['photo_surface']['surface1'].split("_")[-1]).split(".")[0]
             #photo22.append(int(photo[1:])/1000000)
-            photo = (a_station['photo_surface']['front'])
+            photo = (a_station['photo_surface']['surface1'])
             photo22.append(photo)
         station21start, crack_percent21, photo21 =[], [], []
         for a_station in seoul21 :
             station21start.append(int(a_station['station']['start']))
             crack_percent21.append(float(a_station['old_score']['crack']))
-            #photo = (a_station['photo_surface']['front'].split("_")[-1]).split(".")[0]
+            #photo = (a_station['photo_surface']['surface1'].split("_")[-1]).split(".")[0]
             #photo21.append(int(photo[1:])/1000000)
-            photo = (a_station['photo_surface']['front'])
+            photo = (a_station['photo_surface']['surface1'])
             photo21.append(photo)
 
         # data slicing (monitor id에 따른 주어진 범위에 따라)

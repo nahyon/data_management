@@ -365,7 +365,7 @@ class AddResultSeoul(QDialog, AddResultSeoulUI):
                             "spi_3" : spi_3 / count,
                         },
                         "new_spi" : { "aci": aci, "lci": lci, "tci": tci, "pati": pati, "ruti": ruti, "cri": cri, "sci": sci, "rci": rci, "spi": spi},
-                        "photo_surface": {"front": photo_surface[0], "surface": photo_surface[1] if len(photo_surface) >= 2 else None},
+                        "photo_surface": {"surface1": photo_surface[0], "surface2": photo_surface[1] if len(photo_surface) >= 2 else None},
                         "more_info": road_note
                     }
                 insert_rows.append(insert_data)
