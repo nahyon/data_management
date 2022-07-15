@@ -316,22 +316,20 @@ class GetFile(QDialog, GetFileUI): #GetFile(QMainWindow, GetFileUI):
         return fig
     
     def csv_save(self) :
-        print("csv저장 버튼")
         cnt = 0
         for monitorid in self.monitorid_dict.keys() :
             monitorid_csv = self.one_csv_save(self.monitorid_dict[monitorid], monitorid)
             monitorid_csv.to_csv(os.path.join(self.report_path.text(), f"{monitorid}.csv"), index = False)
             cnt+=1
-        print("csv저장 총", cnt,"개")
+        QMessageBox.about(self, "csv파일 총", f"{cnt}개 저장 완료")
     
     def graph_save(self) :
-        print("그래프 png 저장 버튼")
         cnt = 0
         for monitorid in self.monitorid_dict.keys() :
             monitorid_fig = self.one_png_save(self.monitorid_dict[monitorid], monitorid)
             monitorid_fig.savefig(os.path.join(self.report_path.text(), f"{monitorid}.png"), bbox_inches = 'tight')
             cnt+=1
-        print("png저장 총", cnt,"개")
+        QMessageBox.about(self, "그래프 이미지 총", f"{cnt}개 저장 완료")
     
     def pdf_save(self) :
         filename = self.lineid_combobox.currentText() #lineid 필수
@@ -346,7 +344,7 @@ class GetFile(QDialog, GetFileUI): #GetFile(QMainWindow, GetFileUI):
             pdfsave.savefig(monitorid_fig, bbox_inches = 'tight')
             cnt+=1
         pdfsave.close()
-        print("png저장 총", cnt,"개")
+        QMessageBox.about(self, f"PDF 생성완료 - {filename} (csv파일 총{cnt}개)")
     
     def pdf_save2(self) :
         #한페이지에 그래프 6개씩

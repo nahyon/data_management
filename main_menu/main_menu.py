@@ -41,9 +41,6 @@ class MainMenu(QMainWindow, MainMenuUI):
         ########################################################################
 
 
-
-
-
         # 콤보박스 변경될 때
         self.lineid_combobox.currentTextChanged.connect(self.updateRoadnameCombo)
         self.roadname_combobox.currentTextChanged.connect(self.updateHeadingCombo)

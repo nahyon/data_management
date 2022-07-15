@@ -1,0 +1,28 @@
+{
+    "form": [
+      {
+        "name": "로드텍 현황(일반)",
+        "start_row": 6,
+        "row": [
+          "None", "None", "road_level", "None", "line_id", "None",
+          "road_name", "None", "heading", "track", "monitor_id", "start_location", "end_location",
+          "monitor_start_station", "monitor_end_station", "None", "None", "None",
+          "source_id", "None", "None", "monitor_date", "None", "None", "None", "None",
+          "None", "None", "None", "None", "None", "None", "None", "None", "None",
+          "source_start_station", "source_end_station"
+        ]
+      },
+      {
+        "name": "지역도로 현황(구간 ID 포함)",
+        "start_row": 6,
+        "row": [
+          "road_level", "None", "line_id", "section_id", "province_id", "city_id",
+          "road_name", "None", "heading", "track", "monitor_id", "start_location", "end_location",
+          "monitor_start_station", "monitor_end_station", "None",
+          "source_id", "None", "None", "None", "None", "None", "None", "None", "None",
+          "None", "None", "None", "None", "None", "None", "None", "None",
+          "source_start_station", "source_end_station", "None", "monitor_date"
+        ]
+      }
+    ]
+  }

@@ -1,5 +1,3 @@
-import configparser
-import os
 import config
 
 from PySide6.QtCore import QRect, Qt
@@ -17,11 +15,9 @@ class GetFileUI(object):
         result = database["result20"]
         
         window.setWindowTitle('서울시 데이터 저장')
-        central = QWidget(window)
-        #window.setCentralWidget(central)
 
-
-        mainLayout = QGridLayout(central)
+        mainLayout = QGridLayout(window)
+                
         
         #####################################################
         selectLayout = QHBoxLayout()
