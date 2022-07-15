@@ -130,12 +130,12 @@ class MainMenuUI(object):
         self.showGraph = QGroupBox(window)
         self.showGraph.setGeometry(QRect(10, 280, 670, 410))
         self.showGraph.setTitle("그래프")
-        self.graph_box = QHBoxLayout(self.showGraph)
+        self.graph_layout = QHBoxLayout(self.showGraph)
               
         # 그래프layout
         self.fig = plt.Figure()
         self.canvas = FigureCanvas(self.fig)
-        self.graph_box.addWidget(self.canvas)
+        self.graph_layout.addWidget(self.canvas)
         
         #### 마지막 정보 박스 ####
         self.info_group = QGroupBox(window)
