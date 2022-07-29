@@ -72,6 +72,8 @@ class MainMenuUI(object):
         self.report_group_layout.setColumnStretch(2,1)
         self.report_group_layout.setColumnStretch(3,2) #마지막빈칸조정
         
+        #self.assess_report_button.setDisabled(True)  # [변환보고서 추출]버튼 비활성화
+        
         
         ######################################################################
         #### table ####
@@ -156,21 +158,25 @@ class MainMenuUI(object):
         self.station_start_label.setAlignment(Qt.AlignLeft)
         self.station_end_label.setAlignment(Qt.AlignLeft)
 
-        self.info_box.addWidget(self.compareid_label, 0, 0, 1, 3)
+        self.info_box.addWidget(self.compareid_label, 0, 0, 1, 2)
         self.info_box.addWidget(self.monitorid_label, 1, 0, 1, 2) 
         self.info_box.addWidget(self.station_start_label, 2, 0, -1, 2) 
         self.info_box.addWidget(self.station_end_label, 3, 0, -1, 2)
 
+        self.monitordate = QLabel()
         self.station2122title = QLabel()
         self.station21 = QLabel()
         self.station22 = QLabel()
         
+        self.monitordate.setText("* 조사날짜 : ")
         self.station2122title.setText("<< station(20m단위) ( 시작, 끝 ) >>")
         self.station22.setText("2022 : ( 0 , 0 )")
         self.station21.setText("2021 : ( 0 , 0 )")
+        self.monitordate.setAlignment(Qt.AlignLeft)
         self.station2122title.setAlignment(Qt.AlignLeft)
         self.station22.setAlignment(Qt.AlignLeft)
         self.station21.setAlignment(Qt.AlignLeft)
+        self.info_box.addWidget(self.monitordate, 0, 2)
         self.info_box.addWidget(self.station2122title, 1, 2)
         self.info_box.addWidget(self.station22, 2, 2)
         self.info_box.addWidget(self.station21, 3, 2)

@@ -41,6 +41,7 @@ class AddResultSeoul(QDialog, AddResultSeoulUI):
             self.folder_path.setEnabled(True) #폴더경로 칸 set
             self.file_path.setDisabled(True)
             self.upload_result_button.setEnabled(True) #업로드버튼 활성화
+            
 
     # 업로드
     def upload_result(self):  #[업로드]
@@ -87,6 +88,9 @@ class AddResultSeoul(QDialog, AddResultSeoulUI):
                 {"job_id": self.job_name.text(), "source_id": source_id},
                 {"job_id": 1,"monitor_id": 1, "monitor_start_station": 1, "source_start_station": 1, "source_end_station": 1, "road_level":1}
             ))
+            
+            if len(monitor_list) == 0 :
+                print("DB에 저장된 csv파일명 오류 : " , source_id)
 
             for a_monitor in monitor_list: # "monitor" 테이블에서 job_id, monitor_id, monitor시점, source시점, source종점 빼온다. -> 한 줄씩 본다. 
                 job_id = a_monitor["job_id"]
@@ -104,7 +108,7 @@ class AddResultSeoul(QDialog, AddResultSeoulUI):
                     sorted_data = sorted([row for row in raw_data if source_end_station < row[0] <= source_start_station],
                                          key=lambda x: x[0], reverse=True)
                 station = start_station
-                for data in sorted_data: #csv파일 변경된 시/종점 범위 한 줄씩 본다
+                for idx, data in enumerate(sorted_data): #csv파일 변경된 시/종점 범위 한 줄씩 본다
                     #서울시
                     # 각 줄의 32번째 칸까지 데이터에서 각 항목을 추출 (서울시 분석보고서에 해당)
                     _, photo_front, photo_surface, rutting, iri, latitude, longitude, crack_amount, _, _, _, _, \
@@ -117,8 +121,9 @@ class AddResultSeoul(QDialog, AddResultSeoulUI):
                     if len(data) != 32:
                         print(a_monitor, len(data))
                             
-                    if width == '':
+                    if width == '': #마지막 row에 width 빈 칸인 파일들이 있음 
                         print(a_monitor)
+                        
                     width = round(float(width), 2)  # 분석폭을 소숫점 두자리로 반올림
 
                     crack_percent = ((float(longitudinal_low) + float(longitudinal_med) + float(longitudinal_high) + float(transverse_low) +

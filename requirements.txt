@@ -1,0 +1,13 @@
+configparser
+pyside6
+pymongo
+openpyxl
+dbf
+pyqtgraph
+numpy
+pandas
+matplotlib
+
+
+실행 : python main.py runserver
+설치하라고 오류뜨면 : pip install [설치]

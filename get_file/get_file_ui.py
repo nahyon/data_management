@@ -79,9 +79,15 @@ class GetFileUI(object):
         #####################################################
         selectLayout = QHBoxLayout()
         mainLayout.addLayout(selectLayout, 3, 0) # main레이아웃에 추가
-
+        
+        
+        ##변환보고서 추가
+        self.report_save_button = QPushButton('변환보고서')
+        selectLayout.addWidget(self.report_save_button, alignment=Qt.AlignHCenter)
+        self.report_save_button.setDisabled(True) 
         
         selectLayout.addStretch(1) #왼쪽에 마진 
+        
         
         self.csv_save_button = QPushButton('csv 저장')
         selectLayout.addWidget(self.csv_save_button, alignment=Qt.AlignHCenter)
@@ -92,6 +98,8 @@ class GetFileUI(object):
         self.csv_save_button.setDisabled(True) 
         self.graph_save_button.setDisabled(True) 
         self.pdf_save_button.setDisabled(True)
+        
+        
 
         ##############################################################
         window.setFixedSize(650, 360)

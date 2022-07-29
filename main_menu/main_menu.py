@@ -3,21 +3,25 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import *
 from matplotlib import pyplot as plt
 
+import os
 import config 
 import numpy as np
 import pandas as pd # csv저장
 
 # 한글 폰트 사용을 위해서 세팅
 from matplotlib import font_manager, rc
-font_path = r"C:\Users\alba3\Desktop\temp_graph\NanumGothic.ttf"
+font_path = os.path.join( os.getcwd(), "NanumGothic.ttf")
 font = font_manager.FontProperties(fname=font_path).get_name()
 rc('font', family=font)
+
+# 파일들 저장 경로
+file_path = os.path.join( os.getcwd(), "file") #메인폴더의 file폴더 속에 저장
 
 from main_menu.main_menu_ui import MainMenuUI
 from add_monitor.add_monitor import AddStatus # 과업 현황 입력
 from view_monitor.view_monitor import ViewMonitor # 과업 현황 보기
 from add_result.add_result_seoul import AddResultSeoul # 분석보고서 csv업로드
-#from get_assess_report.get_assess_report_seoul import GetAssessReportSeoul # 변환보고서 추출
+from get_assess_report.get_assess_report_seoul import GetAssessReportSeoul #변환보고서 추출
 from get_file.get_file import GetFile #그래프 추출
 
 
@@ -34,7 +38,7 @@ class MainMenu(QMainWindow, MainMenuUI):
         self.job_status_add_button.clicked.connect(self.open_add_status) #과업 현황 입력
         self.job_status_button.clicked.connect(self.open_job_status) # 과업 현황 보기
         self.result_seoul_add_button.clicked.connect(self.open_add_result_seoul) # 분석보고서 csv업로드
-        #self.result_seoul20_add_button.clicked.connect(self.open_add_result_seoul20)
+        self.assess_report_button.clicked.connect(self.open_assess_report)
         self.get_file_button.clicked.connect(self.open_get_file)
         
         
@@ -114,14 +118,28 @@ class MainMenu(QMainWindow, MainMenuUI):
         #print(road, lineid, heading, track)
         monitorid_info = list(monitor.find(
             {"job_id": "2022년_서울시", "monitor_id": self.monitor_id},
-            {"job_id": 1,"monitor_id": 1, "compare_id" : 1,  "monitor_start_station": 1, "monitor_end_station":1}
+            {"job_id": 1,"monitor_id": 1, "compare_id" : 1,  "monitor_start_station": 1, "monitor_end_station":1, "line_id":1, "monitor_date" : 1}
         ))
+        
         self.monitor_start_station = monitorid_info[0]['monitor_start_station']
         self.monitor_end_station = monitorid_info[0]['monitor_end_station']
+        #조사 날짜 추가
+        date = monitorid_info[0]['monitor_date']
+        y = date.year
+        m = date.month if date.month >=10 else "0" + str(date.month)
+        d = date.day if date.day >=10 else "0" + str(date.day)
+        self.monitor_date = f"{y}-{m}-{d}" 
         
         compare_id = monitorid_info[0]['compare_id']
         #print("compare_id : ", compare_id)
         #monitor_id = monitorid_info[0]['monitor_id']
+        
+        #21년도 compare_id : f"{road_name}({line_id})_{heading[0]}_{track}" 에서 line_id부분이 01이아닌 1로 저장되어있음
+        lineid_str = monitorid_info[0]['line_id']
+        lineid_int = int(lineid_str)
+        #print(lineid_str, lineid_int)
+        compare_id_21 = compare_id.split("(")[0] + "(" + str(lineid_int) + ")" + compare_id.split(")")[1]
+        #print(compare_id_21)
 
         # 22년, 21년 정보 (result)
         seoul22 = list(result.find(
@@ -129,7 +147,7 @@ class MainMenu(QMainWindow, MainMenuUI):
             {"job_id": 1,"compare_id" : 1, "station": 1, "old_score":1,  "photo_surface":1},
         ).sort("station"))
         seoul21 = list(result.find(
-            {"job_name": "2021년_서울시", "compare_id": compare_id},
+            {"job_name": "2021년_서울시", "compare_id": compare_id_21},
             {"job_id": 1,"compare_id" : 1, "station": 1, "old_score":1, "photo_surface":1}
         ).sort("station"))
 
@@ -189,8 +207,8 @@ class MainMenu(QMainWindow, MainMenuUI):
         dict21 = {'21station': self.newstation21start, '21crack': [round(float(percent) ,2 ) for percent in self.newcrack_percent21], '21photo': self.newphoto21}  
 
         # 21년도 데이터를 22년도 station에 맞춰서 자르기 #
-        startstation = self.newstation22start[0]
-        endstation= self.newstation22start[-1]
+        #startstation = self.newstation22start[0]
+        #endstation= self.newstation22start[-1]
         #print(startstation, endstation)
         #newdict21 = self.convert_dict21(dict21, startstation, endstation)
 
@@ -269,7 +287,12 @@ class MainMenu(QMainWindow, MainMenuUI):
 
 
     def convert_csv(self, ) :
-        self.df.to_csv(f"{self.monitorid_combobox.currentText()}.csv", index = False)
+        #self.df.to_csv(f"{self.monitorid_combobox.currentText()}.csv", index = False, encoding='utf-8-sig')
+        #self.df.to_csv(os.path.join( file_path,(f"{self.monitorid_combobox.currentText()}.csv")) , index = False, encoding='utf-8-sig')
+        monitor_date_df = pd.DataFrame({'monitor_date': self.monitor_date}, index = ['monitor_date'])
+        #csv_df = pd.merge([monitor_date_df, self.df])
+        monitor_date_df.to_csv(os.path.join( file_path,(f"{self.monitorid_combobox.currentText()}.csv")) , header = False, index = False, encoding='utf-8-sig')
+        self.df.to_csv(os.path.join( file_path,(f"{self.monitorid_combobox.currentText()}.csv")), mode='a', index = False, encoding='utf-8-sig')
     
 
     def png_save(self) :
@@ -293,6 +316,7 @@ class MainMenu(QMainWindow, MainMenuUI):
         plt.ylim([0, 100]) #y축 0~100으로고정
         interval = 200 if self.monitor_end_station - self.monitor_start_station >=7000 else 100
         plt.xticks(list((range(self.monitor_start_station, self.monitor_end_station+20, interval))),rotation=90) #눈금
+        plt.minorticks_on()
         
         plt.ylabel("crack_percent")
         plt.xlabel("start_station")
@@ -302,7 +326,9 @@ class MainMenu(QMainWindow, MainMenuUI):
         plt.legend()
         
 
-        fig.savefig(f"{self.monitorid_combobox.currentText()}.png", bbox_inches = 'tight')
+        #fig.savefig(f"{self.monitorid_combobox.currentText()}.png", bbox_inches = 'tight')
+        fig.savefig(os.path.join( file_path, f"{self.monitorid_combobox.currentText()}.png") , bbox_inches = 'tight')
+
     
 
         
@@ -327,8 +353,10 @@ class MainMenu(QMainWindow, MainMenuUI):
         self.update_monitor() 
 
     # [변환보고서 추출]
-    def open_assess_report_seoul(self):
-        pass
+    def open_assess_report(self):
+        dialog = GetAssessReportSeoul("2022년_서울시")
+        dialog.exec()
+
     # [그래프 추출]
     def open_get_file(self):
         dialog = GetFile()

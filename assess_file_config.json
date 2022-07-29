@@ -1,0 +1,49 @@
+{
+  "form": [
+    {
+      "name": "서울시 분석보고서",
+      "group": "seoul",
+      "source_workbook": "form_directory/서울시_분석보고서.xlsx",
+      "sheets": [
+        {
+          "source_worksheet": "분석자료",
+          "start_row": 14,
+          "contents": [
+            "station", "photo_front", "photo_surface", 
+            "rutting", "iri", "latitude", "longitude", 
+            "crack_amount", "crack_percent", 
+            "spi_roadlevel",
+            "longitudinal_low", "longitudinal_med", "longitudinal_high",
+            "transverse_low", "transverse_med", "transverse_high",
+            "cold_joint_low", "cold_joint_med", "cold_joint_high",
+            "fatigue_low", "fatigue_med", "fatigue_high", 
+            "patching_low", "patching_med", "patching_high", 
+            "pothole_low", "pothole_med", "pothole_high",
+            "width", "area", 
+            "intersection_boolean", "more_info"
+          ]
+        },
+        {
+          "source_worksheet": "보고서",
+          "start_row": 4,
+          "contents": [
+            "year", "month", "line_id", "line_name", "road_name", "road_level", "heading", "track",
+            "start_station", "end_station", 
+            "longitudinal_low", "longitudinal_med", "longitudinal_high", "longitudinal_sum",
+            "transverse_low", "transverse_med", "transverse_high", "transverse_sum",
+            "cold_joint_low", "cold_joint_med", "cold_joint_high", "cold_joint_sum",
+            "fatigue_low", "fatigue_med", "fatigue_high",  "fatigue_sum", 
+            "patching_sum",  
+            "pothole_sum", 
+            "width", "area",
+            "old_crack", "old_rutting", "old_iri",
+            "old_spi_1", "old_spi_2", "old_spi_3", "old_spi_30",
+            "aci", "lci", "tci", "pati", "ruti", "cri", "sci", "rci", "spi", 
+            "more_info", "photo_surface1",  "photo_surface2"
+          ]
+        }
+      ]
+    }
+    
+  ]
+}

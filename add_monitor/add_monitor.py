@@ -200,8 +200,8 @@ class AddStatus(QDialog, AddStatusUI):
         if source_start_station == "-" or source_end_station == "-" or source_start_station is None and source_end_station is None :
             return "continue"
         # 담당업체가 '아이리스'인 경우 DB에 저장x 
-        if row_data[0] == "아이리스" :
-            return "continue"
+        #if row_data[0] == "아이리스" :
+        #    return "continue"
         
         #STA시점, 종점 km -> m단위 변경
         if source_start_station is not None and source_end_station is not None:
